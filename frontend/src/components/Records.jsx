@@ -4,7 +4,7 @@ function Records() {
   const [records, setRecords] = useState([]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/records")
+    fetch("https://mindtrack-backend-gkn8.onrender.com/records")
       .then((response) => response.json())
       .then((data) => {
         setRecords(data.data);

@@ -1,121 +1,90 @@
 import { useState } from "react";
 
 function WellnessCheck() {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [mood, setMood] = useState("");
   const [sleepHours, setSleepHours] = useState("");
   const [stressLevel, setStressLevel] = useState("");
   const [result, setResult] = useState("");
 
   const handleSubmit = async () => {
-    const wellbeingScore =
-      Number(sleepHours) >= 7 && Number(stressLevel) <= 5
-        ? 90
-        : 60;
+    const sleep = Number(sleepHours);
+    const stress = Number(stressLevel);
 
-    const response = await fetch("http://127.0.0.1:5000/submit", {
+    let wellbeingScore = 100;
+
+    if (sleep < 5) wellbeingScore -= 30;
+    else if (sleep < 7) wellbeingScore -= 15;
+
+    wellbeingScore -= stress * 4;
+
+    if (wellbeingScore < 0) wellbeingScore = 0;
+    if (wellbeingScore > 100) wellbeingScore = 100;
+
+    let scoreLevel = "";
+
+    if (wellbeingScore >= 75) {
+      scoreLevel = "High wellbeing score";
+    } else if (wellbeingScore >= 50) {
+      scoreLevel = "Medium wellbeing score";
+    } else {
+      scoreLevel = "Low wellbeing score";
+    }
+
+    await await fetch("https://mindtrack-backend-gkn8.onrender.com/submit", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name: name,
-        sleep_hours: sleepHours,
-        stress_level: stressLevel,
+        name: firstName,
+        mood: mood,
+        sleep_hours: sleep,
+        stress_level: stress,
         wellbeing_score: wellbeingScore,
       }),
     });
 
-    const data = await response.json();
-
     setResult(
-      `Hello ${name}, your wellbeing score is ${wellbeingScore}`
+      `Hi ${firstName}, your mood today is ${mood}. Your wellbeing score is ${wellbeingScore}/100 — ${scoreLevel}.`
     );
-
-    console.log(data);
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        backgroundColor: "#eef2ff",
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          padding: "40px",
-          borderRadius: "15px",
-          width: "400px",
-          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-        }}
-      >
-        <h1 style={{ textAlign: "center" }}>Wellness Check</h1>
+    <div className="card">
+      <h2>Daily Wellbeing Assessment</h2>
 
-        <input
-          type="text"
-          placeholder="Enter your name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "12px",
-            marginTop: "20px",
-            borderRadius: "8px",
-          }}
-        />
+      <input
+        type="text"
+        placeholder="First name"
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
+      />
 
-        <input
-          type="number"
-          placeholder="Sleep hours"
-          value={sleepHours}
-          onChange={(e) => setSleepHours(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "12px",
-            marginTop: "20px",
-            borderRadius: "8px",
-          }}
-        />
+      <input
+        type="text"
+        placeholder="Today's mood"
+        value={mood}
+        onChange={(e) => setMood(e.target.value)}
+      />
 
-        <input
-          type="number"
-          placeholder="Stress level"
-          value={stressLevel}
-          onChange={(e) => setStressLevel(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "12px",
-            marginTop: "20px",
-            borderRadius: "8px",
-          }}
-        />
+      <input
+        type="number"
+        placeholder="Sleep hours"
+        value={sleepHours}
+        onChange={(e) => setSleepHours(e.target.value)}
+      />
 
-        <button
-          onClick={handleSubmit}
-          style={{
-            width: "100%",
-            padding: "12px",
-            marginTop: "20px",
-            backgroundColor: "#4f46e5",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-          }}
-        >
-          View Result
-        </button>
+      <input
+        type="number"
+        placeholder="Stress level (1-10)"
+        value={stressLevel}
+        onChange={(e) => setStressLevel(e.target.value)}
+      />
 
-        {result && (
-          <h3 style={{ marginTop: "20px", textAlign: "center" }}>
-            {result}
-          </h3>
-        )}
-      </div>
+      <button onClick={handleSubmit}>View Result</button>
+
+      {result && <h3>{result}</h3>}
     </div>
   );
 }

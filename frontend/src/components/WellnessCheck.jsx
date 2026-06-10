@@ -1,11 +1,10 @@
 import { useState } from "react";
 
-function WellnessCheck() {
+function WellnessCheck({ setScreen, setResultData }) {
   const [firstName, setFirstName] = useState("");
   const [mood, setMood] = useState("");
   const [sleepHours, setSleepHours] = useState("");
   const [stressLevel, setStressLevel] = useState("");
-  const [result, setResult] = useState("");
 
   const handleSubmit = async () => {
     const sleep = Number(sleepHours);
@@ -31,7 +30,7 @@ function WellnessCheck() {
       scoreLevel = "Low wellbeing score";
     }
 
-    await await fetch("https://mindtrack-backend-gkn8.onrender.com/submit", {
+    await fetch("https://mindtrack-backend-gkn8.onrender.com/submit", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -45,9 +44,16 @@ function WellnessCheck() {
       }),
     });
 
-    setResult(
-      `Hi ${firstName}, your mood today is ${mood}. Your wellbeing score is ${wellbeingScore}/100 — ${scoreLevel}.`
-    );
+    setResultData({
+      firstName,
+      mood,
+      sleepHours: sleep,
+      stressLevel: stress,
+      wellbeingScore,
+      scoreLevel,
+    });
+
+    setScreen("result");
   };
 
   return (
@@ -83,8 +89,6 @@ function WellnessCheck() {
       />
 
       <button onClick={handleSubmit}>View Result</button>
-
-      {result && <h3>{result}</h3>}
     </div>
   );
 }
